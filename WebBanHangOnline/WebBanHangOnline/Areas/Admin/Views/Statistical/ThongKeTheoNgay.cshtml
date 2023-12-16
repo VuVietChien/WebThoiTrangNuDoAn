@@ -1,0 +1,143 @@
+﻿@model List<WebBanHangOnline.Models.ThongKeDonHangViewModel>
+@{
+    ViewBag.Title = "ThongKeDonHangTheoNgay";
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Biểu đồ Thống kê Đơn hàng theo ngày</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js"></script>
+</head>
+<body>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Thống kê đơn hàng theo từng ngày</h3>
+
+
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+            </div>
+            <div class="col-md-5">
+                <select id="selectMonth" class="form-control">
+                    <option value="1">Chọn tháng</option>
+                    <option value="1">Tháng 1</option>
+                    <option value="2">Tháng 2</option>
+                    <option value="3">Tháng 3</option>
+                    <option value="4">Tháng 4</option>
+                    <option value="5">Tháng 5</option>
+                    <option value="6">Tháng 6</option>
+                    <option value="7">Tháng 7</option>
+                    <option value="8">Tháng 8</option>
+                    <option value="9">Tháng 9</option>
+                    <option value="10">Tháng 10</option>
+                    <option value="11">Tháng 11</option>
+                    <option value="12">Tháng 12</option>
+                    <!-- Thêm các tháng khác tương ứng -->
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button id="filterButton" class="btn btn-primary">Lọc</button>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2">
+                </div>
+
+                <div class="col-md-8">
+                    <div class="chart">
+                        <div><canvas id="myChart" width="400" height="200"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                </div>
+            </div>
+            <div class="row">
+
+            </div>
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+            Footer
+        </div>
+        <!-- /.card-footer-->
+    </div>
+
+
+
+    <script>
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var labels = @Html.Raw(Json.Encode(Model.Select(item => item.Ngay.ToString("yyyy-MM-dd")).ToList()));
+        var data = @Html.Raw(Json.Encode(Model.Select(item => item.SoDon).ToList()));
+
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Số đơn hàng',
+                    data: data,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+
+        document.getElementById('filterButton').addEventListener('click', function () {
+            // Lấy giá trị tháng được chọn từ dropdown
+            var selectedMonth = document.getElementById('selectMonth').value;
+
+            // Gửi yêu cầu đến server để lấy dữ liệu mới cho tháng được chọn
+            $.ajax({
+                url: '/Statistical/ThongKeTheoThang',
+                type: 'GET',
+                data: { selectedMonth: selectedMonth },
+                success: function (result) {
+                    // Cập nhật dữ liệu và biểu đồ
+                    updateChartData(result);
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        });
+
+        function updateChartData(data) {
+            // Cập nhật labels và data dựa trên dữ liệu mới
+            var labels = @Html.Raw(Json.Encode(Model.Select(item => item.Ngay.ToString("yyyy-MM-dd")).ToList()));
+
+            data = data.map(item => item.SoDon);
+
+            // Cập nhật biểu đồ
+            myChart.data.labels = labels;
+            myChart.data.datasets[0].data = data;
+            myChart.update();
+        }
+    </script>
+</body>
+</html>
+
+

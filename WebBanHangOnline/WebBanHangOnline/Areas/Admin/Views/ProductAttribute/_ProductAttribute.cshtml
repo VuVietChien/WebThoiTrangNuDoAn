@@ -1,0 +1,63 @@
+﻿
+@model List<WebBanHangOnline.Models.EF.ProductAttributes>
+@{
+    ViewBag.Title = "_ProductAttribute";
+
+}
+
+@for (int i = 0; i < Model.Count; i++)
+{
+    <table class="table table-bordered">
+        <thead>
+        <th>Size</th>
+        <th>Số lượng</th>
+        <th>Giá</th>
+        <th>Giá khuyến mãi</th>
+        <th>Giá nhập</th>
+        </thead>
+        <tbody id="yourFormId">
+            <tr>
+                <td><input type="text" name="[@i].Size" class="form-control" value="" /></td>
+                <td><input type="text" name="[@i].Quantity" class="form-control" value="1" /></td>
+                <td><input type="text" name="[@i].Price" class="form-control" value="1" /></td>
+                <td><input type="text" name="[@i].PriceSale" class="form-control" value="1" /></td>
+                <td><input type="text" name="[@i].OriginalPrice" class="form-control" value="1" /></td>
+            </tr>
+
+        </tbody>
+    </table>
+
+}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var counter = 1;
+        $("#addAttributeButton").click(function () {
+            //var newFieldSet = '<div class="col-3">' +
+            //    '<div class="form-group">' +
+            //    '<label for="exampleInputEmail1">Số lượng</label>' +
+            //    '<input type="text" name="[' + counter + '].Quantity" class="form-control" value="1" />' +
+            //    '</div>' +
+            //    '</div>' +
+
+            var newFieldSet = `
+                <tr>
+                    <td><input type="text" name="[${counter}].Name" class="form-control" /></td>
+                    <td><input type="text" name="[${counter}].Quantity" class="form-control" value="1" /></td>
+                    <td><input type="text" name="[${counter}].Price" class="form-control" value="1" /></td>
+                    <td><input type="text" name="[${counter}].PriceSale" class="form-control" value="1" /></td>
+                    <td><input type="text" name="[${counter}].OriginalPrice" class="form-control" value="1" /></td>
+                </tr>`;
+
+            // Thêm đoạn mã HTML mới vào trong form
+            $("#yourFormId").append(newFieldSet);
+            counter++;
+        });
+    });
+</script>
+
+
+
+

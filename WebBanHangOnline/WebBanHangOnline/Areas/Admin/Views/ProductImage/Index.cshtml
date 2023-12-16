@@ -1,0 +1,135 @@
+﻿@model IEnumerable<WebBanHangOnline.Models.EF.ProductImage>
+@{
+    ViewBag.Title = "Ảnh sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutEmpty.cshtml";
+}
+
+<style>
+    .glImage {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+    }
+
+        .glImage li {
+            /* display: inline-block;
+        position: relative;*/
+            padding: 5px;
+        }
+
+    .box-btn {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+    }
+</style>
+
+<section class="content">
+
+    <!-- Default box -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">@ViewBag.Title</h3>
+
+            <div class="card-tools">
+
+                <button class="btn btn-danger">Xóa Hết</button>
+                <input class="btn btn-primary" type="button" value="Tải Ảnh" onclick="BrowseServer('txtImage');" />
+            </div>
+        </div>
+        <div class="card-body">
+            <ul class="glImage row">
+                @if (Model != null)
+                {
+                    foreach (var item in Model)
+                    {
+                        <li id="trow_@item.Id" class="col-4">
+                            <img src="@item.Image" width="200" />
+                            @if (item.IsDefault != true)
+                            {
+                                <div class="box-btn">
+                                    <a href="#" data-id="@item.Id" class="btn btn-danger btn-sm btnDelete"><i class="fa fa-trash"></i></a>
+                                    <a href="#" data-id="@item.Id" class="btn btn-success btn-sm btnDefault"><i class="fa fa-check"></i></a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="box-btn">
+                                </div>
+                            }
+
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+        </div>
+        <!-- /.card-footer-->
+</section>
+
+
+<script>
+    function BrowseServer(field) {
+
+        var finder = new CKFinder();
+        finder.selectActionFunction = function (fileUrl) {
+            debugger;
+            //alert(fileUrl);
+            AddImage(@ViewBag.productId, fileUrl)
+        };
+        finder.popup();
+    }
+
+    function AddImage(id, url) {
+        debugger;
+        $.ajax({
+            url: '/admin/productimage/AddImage',
+            type: 'POST',
+            data: { productId: id, url: url },
+            success: function (rs) {
+                if (rs.Success == true) {
+                    window.location.reload();
+                }
+            }
+        })
+    }
+
+    $(document).ready(function () {
+        $('body').on('click', '.btnDelete', function () {
+            var id = $(this).data('id');
+            var conf = confirm("Bạn có muốn xóa ảnh này không ?");
+            if (conf === true) {
+                $.ajax({
+                    url: '/admin/productimage/delete',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function (rs) {
+                        if (rs.success) {
+                            $('#trow_' + id).remove();
+                        }
+                    }
+                });
+
+            }
+        });
+
+        $('body').on('click', '.btnDefault', function () {
+            var id = $(this).data('id');
+                $.ajax({
+                    url: '/admin/productimage/IsDefault',
+                    type: 'POST',
+                    data: { productId: @ViewBag.productId ,id: id },
+                    success: function (rs) {
+                        if (rs.success) {
+                            window.location.reload();
+                        }
+                    }
+                });
+        });
+    });
+</script>

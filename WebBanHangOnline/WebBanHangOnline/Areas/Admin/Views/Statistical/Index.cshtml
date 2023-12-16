@@ -1,0 +1,249 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<style>
+    .searchDate{
+        margin :auto;
+        margin-top:  20px;
+    }
+</style>
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Thống kê</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Thống kê</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+
+    <!-- Default box -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Thống kê danh thu</h3>
+
+            
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+            <div class="searchDate">
+                Từ ngày :
+                <input type="text" class="" id="fromDate" name="fromDate" />
+                Đến ngày :
+                <input type="text" class="" id="toDate" name="toDate" />
+            </div>
+  
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="chart">
+                        <canvas id="barChart" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Ngày</th>
+                                <th>Doanh thu</th>
+                                <th>Tiền vốn</th>
+                                <th>Lợi nhuận</th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="load_data"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                
+            </div>
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+            Footer
+        </div>
+        <!-- /.card-footer-->
+    </div>
+    <!-- /.card -->
+
+</section>
+<!-- /.content -->
+@section scripts{
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="~/Content/clients/plugins/chart.js/Chart.min.js"></script>
+    <script src="~/Content/assets/plugins/moment/moment.min.js"></script>
+    <script>
+        $(function () {
+            debugger;
+            var today = new Date();
+            var firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            var lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+            var fromDate = formatDate(firstDayOfMonth);
+            var toDate = formatDate(lastDayOfMonth);
+
+            requestData(fromDate, toDate);
+
+            function formatDate(date) {
+                var dd = String(date.getDate()).padStart(2, '0');
+                var mm = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
+                var yyyy = date.getFullYear();
+
+                return dd + '/' + mm + '/' + yyyy;
+            }
+
+            function load_data(data) {
+                var strHtml = "";
+                var totalDoanhThu = 0;
+                var totalLoiNhuan = 0;
+                var totalVon = 0;
+                $.each(data, function (i, item) {
+                    var strDate = moment(item.Date).format('DD/MM/yyyy');
+                    strHtml += "<tr>";
+                    strHtml += "<td>" + (i + 1) + "</td>";
+                    strHtml += "<td>" + strDate + "</td>";
+                    strHtml += "<td>" + item.DoanhThu + "</td>";
+                    strHtml += "<td>" + item.TongVon + "</td>";
+                    strHtml += "<td>" + item.LoiNhuan + "</td>";
+
+                    strHtml += "</tr>";
+                    totalDoanhThu += item.DoanhThu;
+                    totalLoiNhuan += item.LoiNhuan;
+                    totalVon += item.TongVon;
+                });
+
+                // Thêm dòng tổng cuối cùng
+                strHtml += "<tr>";
+                strHtml += "<td colspan='2'><strong>Tổng</strong></td>";
+                strHtml += "<td><strong>" + totalDoanhThu + "</strong></td>";
+                strHtml += "<td><strong>" + totalVon + "</strong></td>";
+                strHtml += "<td><strong>" + totalLoiNhuan + "</strong></td>";
+
+                strHtml += "</tr>";
+                $('#load_data').html(strHtml);
+            }
+
+            $('#fromDate, #toDate').change(function () {
+                debugger;
+                var fromDate = $('#fromDate').val();
+                var toDate = $('#toDate').val();
+
+                if (!fromDate) {
+                    fromDate = "";
+                }
+
+                if (!toDate) {
+                    toDate = "";
+                }
+
+                requestData(fromDate, toDate);
+
+            });
+
+            function requestData(fromDate, toDate) {
+                debugger;
+                var arrDoanhThu = [];
+                var arrLoiNhuan = [];
+                var arrDate = [];
+                $.ajax({
+                    url: '/Statistical/GetStatistical',
+                    type: 'GET',
+                    data: { fromDate: fromDate, toDate: toDate },
+                    success: function (rs) {
+                        debugger;
+
+                        $.each(rs.Data, function (i, item) {
+                            var strDate = moment(item.Date).format('DD/MM/yyyy');
+                            arrDate.push(strDate);
+                            arrDoanhThu.push(item.DoanhThu);
+                            arrLoiNhuan.push(item.LoiNhuan);
+                        });
+                        var areaChartData = {
+                            labels: arrDate,
+                            datasets: [
+                                {
+                                    label: 'Lợi nhuận',
+                                    backgroundColor: 'rgba(60,141,188,0.9)',
+                                    borderColor: 'rgba(60,141,188,0.8)',
+                                    pointRadius: false,
+                                    pointColor: '#3b8bba',
+                                    pointStrokeColor: 'rgba(60,141,188,1)',
+                                    pointHighlightFill: '#fff',
+                                    pointHighlightStroke: 'rgba(60,141,188,1)',
+                                    data: arrLoiNhuan
+                                },
+                                {
+                                    label: 'Danh thu',
+                                    backgroundColor: 'rgba(210, 214, 222, 1)',
+                                    borderColor: 'rgba(210, 214, 222, 1)',
+                                    pointRadius: false,
+                                    pointColor: 'rgba(210, 214, 222, 1)',
+                                    pointStrokeColor: '#c1c7d1',
+                                    pointHighlightFill: '#fff',
+                                    pointHighlightStroke: 'rgba(220,220,220,1)',
+                                    data: arrDoanhThu
+                                },
+                            ]
+                        }
+                        //-------------
+                        //- BAR CHART -
+                        //-------------
+                        var barChartCanvas = $('#barChart').get(0).getContext('2d')
+                        var barChartData = $.extend(true, {}, areaChartData)
+                        var temp0 = areaChartData.datasets[0]
+                        var temp1 = areaChartData.datasets[1]
+                        barChartData.datasets[0] = temp1
+                        barChartData.datasets[1] = temp0
+
+                        var barChartOptions = {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            datasetFill: false
+                        }
+
+                        new Chart(barChartCanvas, {
+                            type: 'bar',
+                            data: barChartData,
+                            options: barChartOptions
+                        });
+                        load_data(rs.Data);
+                    }
+                });
+            }
+
+        })
+
+
+
+
+        $(function () {
+            $("#fromDate").datepicker({ dateFormat: 'dd/mm/yy' });
+            $("#toDate").datepicker({ dateFormat: 'dd/mm/yy' });
+        });
+
+
+    </script>
+}

@@ -1,0 +1,96 @@
+﻿@model WebBanHangOnline.Models.EF.ImportOrder
+@using PagedList;
+@{
+    ViewBag.Title = "Chi tiết phiếu nhập";
+}
+@section naviheader{
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="/admin/home/index" class="nav-link">Trang chủ</a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="/admin/importOrder/index" class="nav-link">Danh sách nhập hàng</a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="#" class="nav-link">Chi tiết nhập hàng</a>
+        </li>
+    </ul>
+}
+
+<style>
+    .content-main{
+        max-width : 60%;
+        margin : 30px auto;
+    }
+</style>
+
+<!-- Main content -->
+<section class="content">
+
+    <!-- Default box -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Chi tiết danh sách nhập</h3>
+        </div>
+        <div class="card-body">
+            <div class="content-main">
+                <div class="row">
+                    <div class="col-7">
+                        <table class="table text-center table-danger">
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm / Size</th>
+                                    <th>Giá nhập</th>
+                                    <th>số lượng</th>
+                                    <th>Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                @foreach (var item in ViewBag.ImportOrderDetails)
+                                {
+                                    <tr>
+                                        <td>@item.ProductName</td>
+                                        <td>@WebBanHangOnline.Common.Common.FormatNumber(@item.ImportPrice, 0)</td>
+                                        <td>@item.Quantity</td>
+                                        <td>@WebBanHangOnline.Common.Common.FormatNumber(@item.TotalPrice, 0)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="padding-left : 40px" class="col-5">
+                        <h5>Tổng số lượng hàng nhập : @Model.TotalProducts</h5>
+                        <br />
+                        <h5>Tổng tiền nhập hàng : @WebBanHangOnline.Common.Common.FormatNumber(@Model.TotalAmount, 0)</h5>
+                        <br />
+                        <h5>Ngày nhập hàng : @Model.CreatedDate.ToString("dd/MM/yyyy")</h5>
+                        <br />
+
+                        @if (Model.Note != "")
+                        {
+                            <span>Ghi chú phiếu nhập : </span>
+                            <b>@Model.Note</b>
+                        }
+
+                    </div>
+                </div>
+            </div>
+           
+
+
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+
+        </div>
+        <!-- /.card-footer-->
+    </div>
+    <!-- /.card -->
+
+</section>
+<!-- /.content -->

@@ -1,0 +1,133 @@
+﻿
+@{
+    ViewBag.Title = "TopSellingProducts";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sản phẩm bán chạy nhất trong tháng</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+</head>
+<body>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Thống kê sản phẩm bán chạy nhất trong tháng</h3>
+
+
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+            </div>
+            <div class="col-md-5">
+                <select id="selectMonth" class="form-control">
+                    <option value="1">Chọn tháng</option>
+                    <option value="1">Tháng 1</option>
+                    <option value="2">Tháng 2</option>
+                    <option value="3">Tháng 3</option>
+                    <option value="4">Tháng 4</option>
+                    <option value="5">Tháng 5</option>
+                    <option value="6">Tháng 6</option>
+                    <option value="7">Tháng 7</option>
+                    <option value="8">Tháng 8</option>
+                    <option value="9">Tháng 9</option>
+                    <option value="10">Tháng 10</option>
+                    <option value="11">Tháng 11</option>
+                    <option value="12">Tháng 12</option>
+                    <!-- Thêm các tháng khác tương ứng -->
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button id="filterButton" class="btn btn-primary">Lọc</button>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                </div>
+
+                <div class="col-md-6">
+                    <div class="chart">
+                        <div><canvas id="myPieChart" width="400" height="200"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                </div>
+            </div>
+            <div class="row">
+
+            </div>
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+            Footer
+        </div>
+        <!-- /.card-footer-->
+    </div>
+
+
+
+    <script>
+         
+
+        $(document).ready(function () {
+
+
+            $.ajax({
+                url: '/Statistical/GetTopSellingProducts', // Điều chỉnh đường dẫn đến hàm phía backend
+                type: 'GET',
+                success: function (data) {
+                    var labels = data.map(function (item) {
+                        return item.Title;
+                    });
+
+                    var values = data.map(function (item) {
+                        return item.QuantitySold;
+                    });
+
+                    var ctx = document.getElementById('myPieChart').getContext('2d');
+                    var myPieChart = new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: values,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.7)',
+                                    'rgba(255, 205, 86, 0.7)',
+                                    'rgba(75, 192, 192, 0.7)',
+                                    'rgba(54, 162, 235, 0.7)',
+                                    'rgba(153, 102, 255, 0.7)'
+                                ]
+                            }]
+                        }
+                    });
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
+
+
+
+
